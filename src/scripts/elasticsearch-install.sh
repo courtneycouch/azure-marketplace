@@ -1151,10 +1151,10 @@ configure_elasticsearch()
     sed -i "s/-XX:+UseCMSI/#-XX:+UseCMSI/g" /etc/elasticsearch/jvm.options
     sed -i "s/# 10-:-XX/10-:-XX/g" /etc/elasticsearch/jvm.options
 
-    cat >>/etc/elasticsearch/jvm.options <<EOL
+cat >>/etc/elasticsearch/jvm.options <<EOL
 
-    -XX:MaxGCPauseMillis=300 
-    -XX:G1HeapRegionSize=8m
+-XX:MaxGCPauseMillis=300 
+-XX:G1HeapRegionSize=8m
 EOL
 }
 
