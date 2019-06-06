@@ -107,7 +107,7 @@ mkdir -p $MOUNTPOINT
 read UUID FS_TYPE < <(blkid -u filesystem ${DEV}|awk -F "[= ]" '{print $3" "$5}'|tr -d "\"")
 add_to_fstab "${UUID}" "$MOUNTPOINT"
 log "Mounting disk $DEV on $MOUNTPOINT"
-mount -o $MOUNT_OPTIONS /dev/$DEV $MOUNTPOINT
+mount -o $MOUNT_OPTIONS $DEV $MOUNTPOINT
 
 echo 2 > /sys/block/nvme0n1/queue/rq_affinity
 echo noop > /sys/block/nvme0n1/queue/scheduler
