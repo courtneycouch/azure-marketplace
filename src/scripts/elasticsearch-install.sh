@@ -1166,6 +1166,16 @@ configure_elasticsearch()
     log "[configure_elasticsearch] configure elasticsearch heap size - $ES_HEAP megabytes"
     sed -i -e "s/^\-Xmx.*/-Xmx${ES_HEAP}m/" /etc/elasticsearch/jvm.options
     sed -i -e "s/^\-Xms.*/-Xms${ES_HEAP}m/" /etc/elasticsearch/jvm.options
+    sed -i "s/-XX:+UseConc/#-XX:+UseConc/g" /etc/elasticsearch/jvm.options
+    sed -i "s/-XX:CMSIniti/#-XX:CMSIniti/g" /etc/elasticsearch/jvm.options
+    sed -i "s/-XX:+UseCMSI/#-XX:+UseCMSI/g" /etc/elasticsearch/jvm.options
+    sed -i "s/# 10-:-XX/10-:-XX/g" /etc/elasticsearch/jvm.options
+
+    cat >>/etc/elasticsearch/jvm.options <<EOL
+
+    -XX:MaxGCPauseMillis=300 
+    -XX:G1HeapRegionSize=8m
+EOL
 }
 
 configure_os_properties()
@@ -1181,6 +1191,7 @@ configure_os_properties()
     {
       echo "[Service]"
       echo "LimitMEMLOCK=infinity"
+      echo "LimitNOFILE=999999"
     } >> $SYSTEMD_OVERRIDES/override.conf
 
     log "[configure_os_properties] configure systemd to start Elasticsearch service automatically when system boots"
@@ -1188,7 +1199,76 @@ configure_os_properties()
     systemctl enable elasticsearch.service
 
     log "[configure_os_properties] configured operating system level configuration"
+
+    echo never | sudo tee /sys/kernel/mm/transparent_hugepage/defrag
+    echo never | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
+cat >/etc/sysctl.conf <<EOL
+# Controls IP packet forwarding
+net.ipv4.ip_forward = 0
+
+# Controls source route verification
+net.ipv4.conf.default.rp_filter = 1
+
+# Do not accept source routing
+net.ipv4.conf.default.accept_source_route = 0
+
+# Controls the System Request debugging functionality of the kernel
+kernel.sysrq = 0
+
+# Controls whether core dumps will append the PID to the core filename.
+# Useful for debugging multi-threaded applications.
+kernel.core_uses_pid = 1
+
+# Controls the use of TCP syncookies
+net.ipv4.tcp_syncookies = 1
+
+# Controls the default maxmimum size of a mesage queue
+kernel.msgmnb = 65536
+
+# Controls the maximum size of a message, in bytes
+kernel.msgmax = 65536
+
+# Controls the maximum shared segment size, in bytes
+kernel.shmmax = 68719476736
+
+# Controls the maximum number of shared memory segments, in pages
+kernel.shmall = 4294967296
+vm.swappiness =         1
+vm.max_map_count =      1048575
+net.core.rmem_max =     16777216
+net.core.wmem_max =     16777216
+net.core.rmem_default = 16777216
+net.core.wmem_default = 16777216
+net.ipv4.tcp_rmem =     4096 12582912 16777216
+net.ipv4.tcp_wmem =     4096 12582912 16777216
+
+net.ipv4.tcp_max_syn_backlog = 8096
+net.ipv4.tcp_slow_start_after_idle = 0
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.ip_local_port_range = 10240 65535
+net.ipv4.tcp_abort_on_overflow = 1
+net.core.optmem_max =   40960
+
+net.core.somaxconn =    1024
+net.core.netdev_max_backlog = 5000
+
+vm.dirty_expire_centisecs = 12000
+vm.dirty_ratio = 80
+vm.dirty_background_ratio = 5
+
+net.ipv4.tcp_max_tw_buckets = 262144
+EOL
+sudo sysctl -p
+
+cat >>/etc/security/limits.conf <<EOL
+    *       soft  nofile  999999
+    *       hard  nofile  999999
+    * soft memlock unlimited
+    * hard memlock unlimited
+EOL
+
 }
+
 
 ## Installation of dependencies
 ##----------------------------------
