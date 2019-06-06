@@ -348,27 +348,6 @@ setup_data_disk()
     fi
 }
 
-# Check Data Disk Folder and Permissions
-check_data_disk()
-{
-    if [ ${MASTER_ONLY_NODE} -eq 0 -a ${CLIENT_ONLY_NODE} -eq 0 ]; then
-        log "[check_data_disk] data node checking data directory"
-        if [ -d "/datadisks" ]; then
-            log "[check_data_disk] data disks attached and mounted at /datadisks"
-        elif [ -d "/mnt/elasticsearch/data" ]; then
-            log "[check_data_disk] data directory at /mnt/elasticsearch/data"
-        else
-            #this could happen when the temporary disk is lost and a new one mounted
-            local TEMPDISK="/mnt"
-            log "[check_data_disk] no data directory at /mnt/elasticsearch/data dir"
-            log "[check_data_disk] configuring disk $TEMPDISK/elasticsearch/data"
-            mkdir -p "$TEMPDISK/elasticsearch/data"
-            chown -R elasticsearch:elasticsearch "$TEMPDISK/elasticsearch"
-            chmod 755 "$TEMPDISK/elasticsearch"
-        fi
-    fi
-}
-
 # Install OpenJDK
 install_java()
 {
