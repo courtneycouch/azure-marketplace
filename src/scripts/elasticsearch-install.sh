@@ -1324,6 +1324,7 @@ port_forward()
 # Installation sequence
 #########################
 
+log "[install_additional_plugins] param value: ${INSTALL_ADDITIONAL_PLUGINS}"
 # if elasticsearch is already installed assume this is a redeploy
 # change yaml configuration and only restart the server when needed
 if systemctl -q is-active elasticsearch.service; then
