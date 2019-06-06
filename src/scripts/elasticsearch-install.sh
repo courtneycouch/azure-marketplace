@@ -149,6 +149,8 @@ TRANSPORT_CERT_PASSWORD=""
 SAML_METADATA_URI=""
 SAML_SP_URI=""
 
+DATA_DIR=/media/elasticsearchvolume
+
 #Loop through options passed
 while getopts :n:m:v:A:R:M:K:S:F:Z:p:a:k:L:C:B:E:H:G:T:W:V:J:N:D:O:P:xyzldjh optname; do
   log "Option $optname set"
@@ -329,12 +331,11 @@ format_data_disks()
 # Configure Elasticsearch Data Disk Folder and Permissions
 setup_data_disk()
 {
-    if [ -d "/datadisks" ]; then
-        local RAIDDISK="/datadisks/disk1"
-        log "[setup_data_disk] configuring disk $RAIDDISK/elasticsearch/data"
-        mkdir -p "$RAIDDISK/elasticsearch/data"
-        chown -R elasticsearch:elasticsearch "$RAIDDISK/elasticsearch"
-        chmod 755 "$RAIDDISK/elasticsearch"
+    if [ -d "$DATA_DIR" ]; then
+        log "[setup_data_disk] configuring disk $DATA_DIR/data"
+        mkdir -p "$DATA_DIR/data"
+        chown -R elasticsearch:elasticsearch "$DATA_DIR/data"
+        chmod 755 "$DATA_DIR/data"
     elif [ ${MASTER_ONLY_NODE} -eq 0 -a ${CLIENT_ONLY_NODE} -eq 0 ]; then
         local TEMPDISK="/mnt"
         log "[setup_data_disk] Configuring disk $TEMPDISK/elasticsearch/data"
@@ -987,8 +988,8 @@ configure_elasticsearch_yaml()
     #    https://docs.microsoft.com/en-us/azure/virtual-machines/windows/about-disks-and-vhds#temporary-disk
     # 2. for any other node, use the OS disk
     local DATAPATH_CONFIG=/var/lib/elasticsearch
-    if [ -d /datadisks ]; then
-        DATAPATH_CONFIG=/datadisks/disk1/elasticsearch/data
+    if [ -d $DATA_DIR ]; then
+        DATAPATH_CONFIG=$DATA_DIR/data
     elif [ ${MASTER_ONLY_NODE} -eq 0 -a ${CLIENT_ONLY_NODE} -eq 0 ]; then
         DATAPATH_CONFIG=/mnt/elasticsearch/data
     fi
