@@ -1267,16 +1267,7 @@ port_forward()
 # if elasticsearch is already installed assume this is a redeploy
 # change yaml configuration and only restart the server when needed
 if systemctl -q is-active elasticsearch.service; then
-
   configure_elasticsearch_yaml
-
-  # if this is a data node using temp disk, check existence and permissions
-  check_data_disk
-
-  # restart elasticsearch if the configuration has changed
-  cmp --silent /etc/elasticsearch/elasticsearch.yml /etc/elasticsearch/elasticsearch.yml.bak \
-    || systemctl reload-or-restart elasticsearch.service
-
   exit 0
 fi
 
