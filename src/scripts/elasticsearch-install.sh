@@ -1288,8 +1288,6 @@ log "[apt-get] updated apt-get"
 
 install_ntp
 
-install_java
-
 install_es
 
 setup_data_disk
