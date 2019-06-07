@@ -1153,8 +1153,9 @@ configure_elasticsearch()
 
 cat >>/etc/elasticsearch/jvm.options <<EOL
 
--XX:MaxGCPauseMillis=300 
--XX:G1HeapRegionSize=8m
+-XX:MaxGCPauseMillis=400 
+-XX:G1HeapRegionSize=16m
+-XX:-PrintCommandLineFlags
 EOL
 }
 
