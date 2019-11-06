@@ -1150,6 +1150,7 @@ configure_elasticsearch()
     sed -i "s/-XX:CMSIniti/#-XX:CMSIniti/g" /etc/elasticsearch/jvm.options
     sed -i "s/-XX:+UseCMSI/#-XX:+UseCMSI/g" /etc/elasticsearch/jvm.options
     sed -i "s/# 10-:-XX/10-:-XX/g" /etc/elasticsearch/jvm.options
+    sed -i "s/9-:-Xlog:gc/# 9-:-Xlog:gc/g" /etc/elasticsearch/jvm.options
     sed -i "s/InitiatingHeapOccupancyPercent=75/InitiatingHeapOccupancyPercent=30/g" /etc/elasticsearch/jvm.options
 
 cat >>/etc/elasticsearch/jvm.options <<EOL
@@ -1160,6 +1161,7 @@ cat >>/etc/elasticsearch/jvm.options <<EOL
 -XX:+UseCondCardMark
 -XX:-PrintCommandLineFlags
 -XX:G1ReservePercent=20
+9-:-Xlog:gc*,gc+age=trace,gc+ihop=trace,gc+heap=trace,gc+humongous=trace,gc+phases=trace,safepoint:file=/var/log/elasticsearch/gc.log:utctime,pid,tags:filecount=32,filesize=64m
 EOL
 }
 
